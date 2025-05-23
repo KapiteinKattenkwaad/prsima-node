@@ -2,34 +2,66 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
 
-router.post('/', async (req, res) => {
-  const { title, content, authorId } = req.body;
-  try {
-    const post = await prisma.post.create({ data: { title, content, authorId } });
-    res.json(post);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
 router.get('/', async (req, res) => {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    include: { author: true },
-  });
-  res.json(posts);
-});
+  const {
+    page = 1,
+    limit = 5,
+    author,
+    published,
+    title,
+    sort = 'createdAt',
+    order = 'desc'
+  } = req.query;
 
-router.put('/:id/publish', async (req, res) => {
-  const { id } = req.params;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const take = parseInt(limit);
+
+  const where = {
+    ...(published !== undefined && {
+      published: published === 'true'
+    }),
+    ...(author && {
+      author: {
+        name: {
+          contains: author,
+          mode: 'insensitive'
+        }
+      }
+    }),
+    ...(title && {
+      title: {
+        contains: title,
+        mode: 'insensitive'
+      }
+    }),
+  };
+
   try {
-    const post = await prisma.post.update({
-      where: { id: parseInt(id) },
-      data: { published: true },
+    const [posts, total] = await Promise.all([
+      prisma.post.findMany({
+        skip,
+        take,
+        where,
+        include: { author: true },
+        orderBy: {
+          [sort]: order
+        },
+      }),
+      prisma.post.count({ where }),
+    ]);
+
+    res.json({
+      data: posts,
+      meta: {
+        total,
+        page: parseInt(page),
+        limit: take,
+        pages: Math.ceil(total / take),
+      }
     });
-    res.json(post);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
 
