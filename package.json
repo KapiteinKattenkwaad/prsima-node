@@ -3,18 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "dev": "nodemon src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
     "seed": "node prisma/seed.js",
-  "start": "node src/index.js"
-},
+    "start": "node src/index.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.8.2",
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "prisma": "^6.8.2"
   },
   "devDependencies": {

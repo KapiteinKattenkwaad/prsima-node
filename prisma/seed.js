@@ -36,6 +36,7 @@ async function main() {
       data: {
         email: user.email,
         name: user.name,
+        password: '123456',
         posts: {
           create: user.posts,
         },

@@ -5,12 +5,18 @@ const app = express();
 const userRoutes = require('./routes/users');
 const postRoutes = require('./routes/posts');
 const prisma = require('./db');
+const authRoutes = require('./routes/auth');
+
 
 app.use(express.json());
 
 // Routes
 app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
+console.log('authRoutes →', authRoutes, 'type:', typeof authRoutes);
+
+app.use('/auth', authRoutes);
+
 
 // Health check route
 app.get('/', (req, res) => {
